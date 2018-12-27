@@ -35,7 +35,16 @@ object SbtWebpack extends AutoPlugin {
     resourceManaged in webpack := webTarget.value / "webpack" / "main",
     managedResourceDirectories in Assets+= (resourceManaged in webpack in Assets).value,
     resourceGenerators in Assets += webpack in Assets,
-    webpack in Assets := task.dependsOn(WebKeys.webModules in Assets).value
+    webpack in Assets := task.dependsOn(WebKeys.webModules in Assets).value,
+    // Because sbt-webpack might compile JS and output into the same file.
+    // Therefore, we need to deduplicate the files by choosing the one in the target directory.
+    // Otherwise, the "duplicate mappings" error would occur.
+    deduplicators in Assets += {
+      val targetDir = (resourceManaged in webpack in Assets).value
+      val targetDirAbsolutePath = targetDir.getAbsolutePath
+
+      { files: Seq[File] => files.find(_.getAbsolutePath.startsWith(targetDirAbsolutePath)) }
+    },
   ))
 
 
