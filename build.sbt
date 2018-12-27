@@ -34,4 +34,4 @@ scmInfo := Some(ScmInfo(
   devConnection = Some("scm:git:git@github.com:GIVESocialMovement/sbt-webpack.git")
 ))
 
-addSbtJsEngine("1.2.3")
+addSbtJsEngine("1.2.2")
