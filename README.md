@@ -1,6 +1,10 @@
 sbt-webpack
 =============
 
+[![CircleCI](https://circleci.com/gh/GIVESocialMovement/sbt-webpack/tree/master.svg?style=shield)](https://circleci.com/gh/GIVESocialMovement/sbt-webpack/tree/master)
+[![codecov](https://codecov.io/gh/GIVESocialMovement/sbt-webpack/branch/master/graph/badge.svg)](https://codecov.io/gh/GIVESocialMovement/sbt-webpack)
+[![Gitter chat](https://badges.gitter.im/GIVE-asia/gitter.png)](https://gitter.im/GIVE-asia/Lobby)
+
 `sbt-webpack` integrates [Webpack 4](https://webpack.js.org) with Playframework assets' incremental compilation. 
 This plugin also tracks JS dependencies correctly (e.g. using `require` or `import` in a JS file).
 
