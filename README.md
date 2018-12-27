@@ -55,7 +55,9 @@ Here's a minimal example:
 module.exports = {};
 ```
 
-Please do not specify `entry` and `output`. They are added automatically by `sbt-webpack`.
+Please do not specify `entry` here. You will configure `entry` in `build.sbt` instead. 
+
+Please also do not specify `output`. This plugin automatically set `output`, so the generated files can be used by Playframework's routing.
 
 
 ### 3. Configure `build.sbt`
