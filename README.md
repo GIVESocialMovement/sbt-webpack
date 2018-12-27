@@ -19,9 +19,9 @@ Please see a working example in `test-play-project`.
 
 The problem arises when we want to compile some JS files with Webpack and use the compiled JS within Playframework.
 
-Without the plugin, we would have to run `webpack watch` separately and specify the output location of the compiled JS file correctly, so Playframework's routing can find the compiled JS file.
+Without the plugin, we would have to run `webpack watch` separately and specify the output location of the compiled JS file correctly, so Playframework's routing can find the compiled JS file. This would be tricky in practice.
 
-Playframework already has its own "watch" mechanism and offers a good way to store the compiled JS (so it works with Playfraemework's routing). This plugin does exactly that.
+Playframework already has its own "watch" mechanism and offers a good way to store the compiled JS (so it works with Playfraemework's routing). This plugin integrates Webpack's and Playframework's workflows in a clean way.
 
  
 Requirement
