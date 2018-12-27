@@ -8,6 +8,8 @@ sbt-webpack
 `sbt-webpack` integrates [Webpack 4](https://webpack.js.org) with Playframework assets' incremental compilation. 
 This plugin also tracks JS dependencies correctly (e.g. using `require` or `import` in a JS file).
 
+You, as a user, are responsible for specifying Webpack's entry points and config files.
+
 `sbt-webpack` is currently used at GIVE.asia. We are using it for packaging multiple JS files into one
  and exposing certain variables using [expose-loader](https://github.com/webpack-contrib/expose-loader).
  
