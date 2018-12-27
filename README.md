@@ -10,8 +10,7 @@ This plugin also tracks JS dependencies correctly (e.g. using `require` or `impo
 
 You, as a user, are responsible for specifying Webpack's entry points and config files.
 
-`sbt-webpack` is currently used at GIVE.asia. We are using it for packaging multiple JS files into one
- and exposing certain variables using [expose-loader](https://github.com/webpack-contrib/expose-loader).
+`sbt-webpack` is currently used at GIVE.asia. We are using it for packaging [Vue](https://vuejs.org), [Axios](https://github.com/axios/axios), and [Vue-i18](https://github.com/kazupon/vue-i18n) into a single JS file, which is later included in our HTML file. Then, we use [expose-loader](https://github.com/webpack-contrib/expose-loader) to expose the variables `Vue`, `VueI18n`, and `axios`.
  
 Please see a working example in `test-play-project`.
 
