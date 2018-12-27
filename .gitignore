@@ -1,0 +1,11 @@
+logs
+target
+.DS_Store
+node_modules
+.g8
+.idea
+.idea_modules
+.classpath
+.project
+.settings
+.gradle
