@@ -4,7 +4,7 @@ enablePlugins(SbtWebBase)
 
 organization := "givers.webpack"
 name := "sbt-webpack"
-version in ThisBuild := "0.1.1"
+version in ThisBuild := "0.2.0"
 
 scalaVersion := "2.12.8"
 
