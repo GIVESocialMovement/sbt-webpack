@@ -42,8 +42,10 @@ Add the below lines to `project/plugins.sbt`:
 ```
 resolvers += Resolver.bintrayRepo("givers", "maven")
 
-addSbtPlugin("givers.webpack" % "sbt-webpack" % "0.1.0")
+addSbtPlugin("givers.webpack" % "sbt-webpack" % "0.2.0")
 ```
+
+The artifacts are hosted here: https://bintray.com/givers/maven/sbt-webpack
 
 
 ### 2. Create `webpack.config.js`.
