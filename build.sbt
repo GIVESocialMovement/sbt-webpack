@@ -9,7 +9,7 @@ version in ThisBuild := "0.1.1"
 scalaVersion := "2.12.8"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-json" % "2.6.9",
+  "com.typesafe.play" %% "play-json" % "2.6.13",
   "org.mockito" % "mockito-core" % "2.18.3" % Test,
   "com.lihaoyi" %% "utest" % "0.6.3" % Test
 )
@@ -34,4 +34,4 @@ scmInfo := Some(ScmInfo(
   devConnection = Some("scm:git:git@github.com:GIVESocialMovement/sbt-webpack.git")
 ))
 
-addSbtJsEngine("1.2.2")
+addSbtJsEngine("1.2.3")
