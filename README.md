@@ -30,6 +30,7 @@ Requirement
 * Yarn or NPM
 * Webpack 4
 * Playframework 2.6
+* Scala 2.12.x and SBT 1.x (because the artifact is only published for this setting)
  
  
 Usage
