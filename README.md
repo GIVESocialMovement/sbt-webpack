@@ -70,7 +70,7 @@ Configure `sbt-webpack` and specify Webpack's entry points on `build.sbt`:
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb, SbtWebpack) // Enable the plugin
 
 // The commands that triggers production build (as in `webpack -p`)
-Assets / WebpackKeys.vuefy / WebpackKeys.prodCommands := Set("stage")
+Assets / WebpackKeys.webpack / WebpackKeys.prodCommands := Set("stage")
 
 Assets / WebpackKeys.webpack / WebpackKeys.binary := new File(".") / "node_modules" / ".bin" / "webpack"
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"
