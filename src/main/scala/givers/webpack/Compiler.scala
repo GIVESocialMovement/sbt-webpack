@@ -187,7 +187,6 @@ class Compiler(
     val cmd = Seq(
       binary.getCanonicalPath,
       "--config", prepareWebpackConfig(configFile, filteredEntries, targetDir),
-      if (isProd) { "-p" } else { "-d" }
     ).mkString(" ")
 
     logger.info(cmd)
