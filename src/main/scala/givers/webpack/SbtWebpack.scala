@@ -19,7 +19,6 @@ object SbtWebpack extends AutoPlugin {
       val configFile = SettingKey[File]("webpackConfigFile", "The location of webpack.config.js")
       val entries = SettingKey[Map[String, Seq[String]]]("webpackEntries", "The entry points as defined here: https://webpack.js.org/concepts/entry-points")
       val nodeModulesPath = TaskKey[File]("webpackNodeModules", "The location of the node_modules.")
-      val prodCommands = TaskKey[Set[String]]("webpackProdCommands", "A set of SBT commands that triggers production build. The default is `stage`. In other words, use -p (as opposed to -d) with webpack.")
     }
   }
 
@@ -31,7 +30,6 @@ object SbtWebpack extends AutoPlugin {
     excludeFilter in webpack := HiddenFileFilter,
     includeFilter in webpack := "*.js",
     nodeModulesPath := new File("./node_modules"),
-    prodCommands in webpack := Set("stage"),
     resourceManaged in webpack := webTarget.value / "webpack" / "main",
     managedResourceDirectories in Assets+= (resourceManaged in webpack in Assets).value,
     resourceGenerators in Assets += webpack in Assets,
@@ -57,9 +55,6 @@ object SbtWebpack extends AutoPlugin {
     val webpackBinaryLocation = (binary in webpack).value
     val webpackConfigFileLocation = (configFile in webpack).value
     val webpackEntryPoints = (entries in webpack).value
-
-    val prodCommandValues = (prodCommands in webpack).value
-    val isProd = state.value.currentCommand.exists { exec => prodCommandValues.contains(exec.commandLine) }
 
     val sources = webpackEntryPoints.values.flatMap { vs => vs.map(baseDir / _) }.toSeq
 
@@ -89,7 +84,6 @@ object SbtWebpack extends AutoPlugin {
       val compiler = new Compiler(
         webpackBinaryLocation,
         webpackConfigFileLocation,
-        isProd,
         baseDir,
         targetDir,
         logger,

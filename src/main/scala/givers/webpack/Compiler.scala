@@ -162,7 +162,6 @@ class ComputeEntryPoints {
 class Compiler(
   binary: File,
   configFile: File,
-  isProd: Boolean,
   baseDir: File,
   targetDir: File,
   logger: ManagedLogger,
