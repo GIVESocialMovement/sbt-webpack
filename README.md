@@ -6,13 +6,13 @@ sbt-webpack
 [![Gitter chat](https://badges.gitter.im/GIVE-asia/gitter.png)](https://gitter.im/GIVE-asia/Lobby)
 [ ![Download](https://api.bintray.com/packages/givers/maven/sbt-webpack/images/download.svg) ](https://bintray.com/givers/maven/sbt-webpack/_latestVersion)
 
-`sbt-webpack` integrates [Webpack 4](https://webpack.js.org) with Playframework assets' incremental compilation. 
+`sbt-webpack` integrates [Webpack 4](https://webpack.js.org) with Playframework assets' incremental compilation.
 This plugin also tracks JS dependencies correctly (e.g. using `require` or `import` in a JS file).
 
 You, as a user, are responsible for specifying Webpack's entry points and config files.
 
 `sbt-webpack` is currently used at GIVE.asia. We are using it for packaging [Vue](https://vuejs.org), [Axios](https://github.com/axios/axios), and [Vue-i18](https://github.com/kazupon/vue-i18n) into a single JS file, which is later included in our HTML file. Then, we use [expose-loader](https://github.com/webpack-contrib/expose-loader) to expose the variables `Vue`, `VueI18n`, and `axios`.
- 
+
 Please see a working example in `test-play-project`.
 
 
@@ -24,7 +24,7 @@ Without the plugin, we would have to run `webpack watch` separately and specify 
 
 Playframework already has its own "watch" mechanism and offers a good way to store the compiled JS (so it works with Playfraemework's routing). This plugin integrates Webpack's and Playframework's workflows in a clean way.
 
- 
+
 Requirement
 ------------
 
@@ -32,8 +32,8 @@ Requirement
 * Webpack 4
 * Playframework 2.6
 * Scala 2.12.x and SBT 1.x (because the artifact is only published for this setting)
- 
- 
+
+
 Usage
 ------
 
@@ -58,7 +58,7 @@ Here's a minimal example:
 module.exports = {};
 ```
 
-Please do not specify `entry` here. You will configure `entry` in `build.sbt` instead. 
+Please do not specify `entry` here. You will configure `entry` in `build.sbt` instead.
 
 Please also do not specify `output`. This plugin automatically set `output`, so the generated files can be used by Playframework's routing.
 
@@ -99,4 +99,4 @@ Caveats
 --------
 
 * It doesn't work correctly with CSS because CSS dependencies are tracked in Webpack's stats. See: https://github.com/GIVESocialMovement/sbt-vuefy/issues/20
-* In order to differentiate between development and production, you will have to set an environment variable when running `sbt`, i.e. `NODE_ENV=production sbt`. You can then reference that env variable in your webpack config. See `test-play-project` as an example.
+* In order to diiferentiate the different modes avaliable to you in webpack, You will have to set an environment variable when running `sbt`, i.e. `WEBPACK_ENV=production sbt`. You can then refference that variable in your webpack config.
