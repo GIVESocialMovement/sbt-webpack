@@ -162,7 +162,6 @@ class ComputeEntryPoints {
 class Compiler(
   binary: File,
   configFile: File,
-  isProd: Boolean,
   baseDir: File,
   targetDir: File,
   logger: ManagedLogger,
@@ -187,7 +186,6 @@ class Compiler(
     val cmd = Seq(
       binary.getCanonicalPath,
       "--config", prepareWebpackConfig(configFile, filteredEntries, targetDir),
-      if (isProd) { "-p" } else { "-d" }
     ).mkString(" ")
 
     logger.info(cmd)

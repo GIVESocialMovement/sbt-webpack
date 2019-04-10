@@ -69,9 +69,6 @@ Configure `sbt-webpack` and specify Webpack's entry points on `build.sbt`:
 ```
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb, SbtWebpack) // Enable the plugin
 
-// The commands that triggers production build (as in `webpack -p`)
-Assets / WebpackKeys.webpack / WebpackKeys.prodCommands := Set("stage")
-
 Assets / WebpackKeys.webpack / WebpackKeys.binary := new File(".") / "node_modules" / ".bin" / "webpack"
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"
 Assets / WebpackKeys.webpack / WebpackKeys.entries := Map(
@@ -101,3 +98,4 @@ Caveats
 --------
 
 * It doesn't work correctly with CSS because CSS dependencies are tracked in Webpack's stats. See: https://github.com/GIVESocialMovement/sbt-vuefy/issues/20
+* In order to diiferentiate the different modes avaliable to you in webpack, You will have to set an environment variable when running `sbt`, i.e. `WEBPACK_ENV=production sbt`. You can then refference that variable in your webpack config.
