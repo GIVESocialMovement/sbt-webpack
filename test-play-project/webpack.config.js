@@ -38,3 +38,11 @@ module.exports = {
   },
   devtool: ''
 };
+
+if (process.env.NODE_ENV === 'production') {
+  console.log('[sbt-webpack] Enable the production mode');
+  module.exports.mode = 'production';
+} else {
+  console.log('[sbt-webpack] Enable the development mode');
+  module.exports.mode = 'development';
+}

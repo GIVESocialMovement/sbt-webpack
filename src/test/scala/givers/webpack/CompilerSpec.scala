@@ -28,7 +28,6 @@ object CompilerSpec extends BaseSpec {
       val compiler = new Compiler(
         webpackBinaryFile,
         originalConfigFile,
-        true,
         baseDir,
         targetDir,
         logger,
@@ -84,7 +83,6 @@ object CompilerSpec extends BaseSpec {
             Seq(
               webpackBinaryFile.getCanonicalPath,
               "--config", preparedConfigFile.getAbsolutePath,
-              "-p"
             ).mkString(" ")),
           eq(baseDir),
           varArgsThat[(String, String)] { varargs =>
@@ -138,7 +136,6 @@ object CompilerSpec extends BaseSpec {
           eq(Seq(
             webpackBinaryFile.getCanonicalPath,
             "--config", preparedConfigFile.getAbsolutePath,
-            "-p"
           ).mkString(" ")),
           eq(baseDir),
           varArgsThat[(String, String)] { varargs =>

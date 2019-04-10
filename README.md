@@ -98,4 +98,4 @@ Caveats
 --------
 
 * It doesn't work correctly with CSS because CSS dependencies are tracked in Webpack's stats. See: https://github.com/GIVESocialMovement/sbt-vuefy/issues/20
-* In order to diiferentiate the different modes avaliable to you in webpack, You will have to set an environment variable when running `sbt`, i.e. `WEBPACK_ENV=production sbt`. You can then refference that variable in your webpack config.
+* In order to differentiate between development and production, you will have to set an environment variable when running `sbt`, i.e. `NODE_ENV=production sbt`. You can then reference that env variable in your webpack config. See `test-play-project` as an example.
