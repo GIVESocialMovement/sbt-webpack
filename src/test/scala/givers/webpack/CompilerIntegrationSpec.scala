@@ -24,7 +24,6 @@ object CompilerIntegrationSpec extends BaseSpec {
           configFile = new File("src") / "test" / "scala" / "givers" / "webpack" / "assets" / "webpack.config.js",
           baseDir = baseDir,
           targetDir = targetDir,
-          isProd = true,
           logger = mock[ManagedLogger],
           nodeModules =  new File("node_modules")
         )

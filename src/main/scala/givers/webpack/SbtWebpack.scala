@@ -6,6 +6,8 @@ import sbt.Keys._
 import sbt._
 import xsbti.{Position, Problem, Severity}
 
+import scala.io.Source
+
 object SbtWebpack extends AutoPlugin {
 
   override def requires = SbtWeb
@@ -45,6 +47,15 @@ object SbtWebpack extends AutoPlugin {
     },
   ))
 
+  private[this] def readAndClose(file: File): String = {
+    val s = Source.fromFile(file)
+
+    try {
+      s.mkString
+    } finally {
+      s.close()
+    }
+  }
 
   lazy val task = Def.task {
     val baseDir = (baseDirectory in Assets).value
@@ -58,11 +69,20 @@ object SbtWebpack extends AutoPlugin {
 
     val sources = webpackEntryPoints.values.flatMap { vs => vs.map(baseDir / _) }.toSeq
 
+    val globalHash = new String(
+      Hash(Seq(
+        readAndClose(webpackConfigFileLocation),
+        state.value.currentCommand.map(_.commandLine).getOrElse(""),
+        sys.env.toList.sorted.toString
+      ).mkString("--"))
+    )
+
     val fileHasherIncludingOptions = OpInputHasher[File] { f =>
       OpInputHash.hashString(Seq(
-        "webpack",
+        "sbt-webpack",
         f.getCanonicalPath,
-        baseDir.getAbsolutePath
+        baseDir.getAbsolutePath,
+        globalHash
       ).mkString("--"))
     }
 
@@ -70,15 +90,15 @@ object SbtWebpack extends AutoPlugin {
       val startInstant = System.currentTimeMillis
 
       if (modifiedSources.nonEmpty) {
-        logger.info(s"[Webpack] Compile on ${modifiedSources.size} changed files")
+        logger.info(s"[sbt-webpack] Compile on ${modifiedSources.size} changed files")
         modifiedSources
           .map(_.toString)
           .sorted
           .foreach { s =>
-            logger.info(s"[Webpack] - $s")
+            logger.info(s"[sbt-webpack] - $s")
           }
       } else {
-        logger.info(s"[Webpack] No changes to compile")
+        logger.info(s"[sbt-webpack] No changes to compile")
       }
 
       val compiler = new Compiler(
@@ -135,12 +155,12 @@ object SbtWebpack extends AutoPlugin {
       val endInstant = System.currentTimeMillis
 
       if (createdFiles.nonEmpty) {
-        logger.info(s"[Webpack] finished compilation in ${endInstant - startInstant} ms and generated ${createdFiles.size} JS files")
+        logger.info(s"[sbt-webpack] finished compilation in ${endInstant - startInstant} ms and generated ${createdFiles.size} JS files")
         createdFiles
           .map(_.toString)
           .sorted
           .foreach { s =>
-            logger.info(s"[Webpack] - $s")
+            logger.info(s"[sbt-webpack] - $s")
           }
       }
 

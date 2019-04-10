@@ -190,7 +190,7 @@ class Compiler(
 
     logger.info(cmd)
     val exitCode = shell.execute(cmd, baseDir, "NODE_PATH" -> nodeModules.getCanonicalPath)
-    logger.info(s"[Webpack] exited with $exitCode")
+    logger.info(s"[sbt-webpack] exited with $exitCode")
     val success = exitCode == 0
 
     CompilationResult(
