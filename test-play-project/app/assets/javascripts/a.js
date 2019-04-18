@@ -1,6 +1,7 @@
-require('./c.js');
+import $ from 'jquery'
 
-console.log('This is a.js');
+import currentTime from './b';
 
-let test = "variable";
-let arrowFunction = (firstArgument) => { return firstArgument; };
+console.log('The current time is', currentTime);
+
+export default $('.time').html(currentTime);
