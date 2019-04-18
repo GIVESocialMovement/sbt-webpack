@@ -1,5 +1,9 @@
 @()
-
-<script src='@routes.Assets.versioned("javascripts/compiled.js")'></script>
-
-<h1>Hello</h1>
+<head>
+  <script src='@routes.Assets.versioned("javascripts/vendor.js")'></script>
+</head>
+<body>
+  <h1>Hello</h1>
+  <p>The current time is <span class="time"></span>.</p>
+  <script src='@routes.Assets.versioned("javascripts/compiled.js")'></script>
+</body>
