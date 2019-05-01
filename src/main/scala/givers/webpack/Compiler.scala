@@ -115,7 +115,7 @@ class PrepareWebpackConfig {
         s"""
           |module.exports.output = module.exports.output || {};
           |module.exports.output.filename = module.exports.output.filename || '[name]';
-          |module.exports.output.path = '${targetDir.getCanonicalPath}';
+          |module.exports.output.path = '${targetDir.getCanonicalPath.replace("\\","\\\\")}';
           |
           |const DependencyPlugin = require('./dependency-plugin.js');
           |module.exports.plugins = module.exports.plugins || [];
