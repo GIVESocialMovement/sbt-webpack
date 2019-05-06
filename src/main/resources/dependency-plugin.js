@@ -14,6 +14,7 @@ const writeStats = (compilation) => {
     })
   }
 
+  compilation.chunks.map(chunk => ms.push({ name: chunk.id, reasons: '' }));
   const s = JSON.stringify(ms);
 
   compilation.assets['dependency-tree.json'] = {
