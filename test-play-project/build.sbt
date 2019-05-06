@@ -18,4 +18,4 @@ Assets / WebpackKeys.webpack / WebpackKeys.binary := {
   }
 }
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"
-Assets / WebpackKeys.webpack / WebpackKeys.entries := Map("javascripts/compiled.js" -> Seq("app/assets/javascripts/a.js"))
+Assets / WebpackKeys.webpack / WebpackKeys.entries := Map("javascripts/compiled" -> Seq("app/assets/javascripts/a.js"))

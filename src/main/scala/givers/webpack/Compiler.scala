@@ -111,10 +111,11 @@ class PrepareWebpackConfig {
       )
       webpackConfigFile.write("\n")
       webpackConfigFile.write(s"module.exports.entry = ${Json.prettyPrint(js)};")
+      // add the exension here so that all of the emitted chunks get it
       webpackConfigFile.write(
         s"""
           |module.exports.output = module.exports.output || {};
-          |module.exports.output.filename = module.exports.output.filename || '[name]';
+          |module.exports.output.filename = module.exports.output.filename || '[name].js';
           |module.exports.output.path = '${targetDir.getCanonicalPath.replace("\\","\\\\")}';
           |
           |const DependencyPlugin = require('./dependency-plugin.js');
