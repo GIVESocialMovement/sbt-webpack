@@ -1,3 +1,5 @@
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+
 const baseConfig = {
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -13,7 +15,12 @@ const baseConfig = {
         }
       }
     },
-  }
+  },
+  plugins: [
+    new MomentLocalesPlugin({
+      localesToKeep: ['es-us'],
+    }),
+  ],
 };
 
 function configFactory(base) {
