@@ -18,4 +18,5 @@ Assets / WebpackKeys.webpack / WebpackKeys.binary := {
   }
 }
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"
+// Leave the extension off, it will be added during compilation
 Assets / WebpackKeys.webpack / WebpackKeys.entries := Map("javascripts/compiled" -> Seq("app/assets/javascripts/a.js"))
