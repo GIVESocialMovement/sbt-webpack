@@ -1,10 +1,13 @@
 const writeStats = (compilation) => {
   const ms = [];
+
   for (let module of compilation.getStats().toJson().modules) {
     let reasons = [];
+
     for (let reason of module.reasons) {
       reasons.push(reason.moduleName);
     }
+
     ms.push({
       name: module.name,
       reasons: reasons
@@ -12,6 +15,7 @@ const writeStats = (compilation) => {
   }
 
   const s = JSON.stringify(ms);
+
   compilation.assets['dependency-tree.json'] = {
     source() {
       return s;
@@ -31,3 +35,5 @@ class DependencyPlugin {
 }
 
 module.exports = DependencyPlugin;
+
+
