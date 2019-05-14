@@ -1,21 +1,20 @@
 const writeStats = (compilation) => {
-  const tree = [];
+  const output_file = [];
 
   for (const chunk of compilation.chunks) {
-    const obj = {};
     const deps = [];
 
     for (const m of chunk._modules) {
       deps.push(m.id);
     }
 
-    obj.name = chunk.files[0]; // After much research, I have yet figure out WHY this is in an array, but it is, and at least in our case it is always an array of 1
-    obj.dependencies = deps;
-
-    tree.push(obj);
+    output_file.push({
+      name: chunk.files, // After much research, I have yet figure out WHY this is in an array, but it is, and at least in our case it is always an array of 1
+      dependencies: deps,
+    });
   }
 
-  const s = JSON.stringify(tree);
+  const s = JSON.stringify(output_file);
 
   compilation.assets['dependency-tree.json'] = {
     source() {
