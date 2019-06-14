@@ -1,5 +1,8 @@
-import c from './vendor/c';
-import b from './b';
+require('./vendor/lib.js');
+require('./c.js');
 
-console.log('Hello from A')
 
+console.log('This is a.js');
+
+let test = "variable";
+let arrowFunction = (firstArgument) => { return firstArgument; };

@@ -5,7 +5,11 @@ const writeStats = (compilation) => {
     const deps = [];
 
     for (let m of chunk._modules) {
-      deps.push(m.id);
+      if (m.buildInfo && m.buildInfo.fileDependencies) {
+        for (let dep of m.buildInfo.fileDependencies) {
+          deps.push(dep);
+        }
+      }
     }
 
     outputToDependencies.push({
