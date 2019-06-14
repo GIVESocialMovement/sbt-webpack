@@ -109,8 +109,8 @@ object CompilerSpec extends BaseSpec {
         when(shell.execute(any(), any(), any())).thenReturn(0)
         when(computeDependencyTree.apply(any[File]())).thenReturn(
           Map(
-            inputs.head.name -> Set(targetDir.toPath.relativize(output.toPath).toString),
-            inputs(1).name -> Set(targetDir.toPath.relativize(output.toPath).toString)
+            inputs.head.path.toFile.getCanonicalPath -> Set(targetDir.toPath.relativize(output.toPath).toString),
+            inputs(1).path.toFile.getCanonicalPath -> Set(targetDir.toPath.relativize(output.toPath).toString)
           )
         )
 
@@ -172,11 +172,6 @@ object CompilerSpec extends BaseSpec {
 
     'buildDependencies - {
       val compute = new ComputeDependencyTree
-      def make(s: String) = s"vue${Path.sep}$s"
-      val a = make("a")
-      val b = make("b")
-      val c = make("c")
-      val d = make("d")
 
       "builds correctly" - {
         // Even on window, the path separator from webpack's command is still `/`.
@@ -185,13 +180,13 @@ object CompilerSpec extends BaseSpec {
           Json.obj(
             "output" -> "vue/a",
             "dependencies" -> Seq(
-              "vue/b",
-              "vue/c"
+              "/full-path/vue/b",
+              "/full-path/vue/c"
             )
           ),
           Json.obj(
             "output" -> "vue/b",
-            "dependencies" -> Seq("vue/c")
+            "dependencies" -> Seq("/full-path/vue/c")
           ),
           Json.obj(
             "output" -> "vue/c",
@@ -200,8 +195,8 @@ object CompilerSpec extends BaseSpec {
         )).toString
 
         compute(jsonStr) ==> Map(
-          c -> Set(a, b),
-          b -> Set(a)
+          "/full-path/vue/c" -> Set("vue/a", "vue/b"),
+          "/full-path/vue/b" -> Set("vue/a")
         )
       }
     }
