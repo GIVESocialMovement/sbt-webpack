@@ -82,7 +82,7 @@ object SbtWebpack extends AutoPlugin {
 
     val fileHasherIncludingOptions = OpInputHasher[File] { f =>
       OpInputHash.hashString(Seq(
-        "sbt-webpack",
+        "sbt-webpack-0.6.0",
         f.getCanonicalPath,
         baseDir.getAbsolutePath,
         globalHash

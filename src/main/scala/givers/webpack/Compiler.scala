@@ -165,6 +165,7 @@ class Compiler(
       success = success,
       entries = if (success) {
         val dependencyMap = computeDependencyTree(targetDir / "dependency-tree.json")
+        logger.debug(s"[sbt-webpack] dependency map: $dependencyMap")
 
         dependencyMap
           .map { case (input, outputs) =>
