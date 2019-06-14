@@ -169,7 +169,7 @@ class Compiler(
 
         dependencyMap
           .map { case (input, outputs) =>
-            CompilationEntry(baseDir.toPath.resolve(input).toFile.getCanonicalFile, outputs.map { output => targetDir.toPath.resolve(output) })
+            CompilationEntry(new File(input), outputs.map { output => targetDir.toPath.resolve(output) })
           }
           .toSeq
           .sortBy(_.inputFile)

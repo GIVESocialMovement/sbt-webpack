@@ -1,2 +1,1 @@
-console.log('c');
-console.log('c');
+console.log("Hello from c");

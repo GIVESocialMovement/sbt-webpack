@@ -1,4 +1,3 @@
-import $ from 'jquery';
-import c from './vendor/c';
-
-console.log('hello from b.js.');
+console.log('This is b.js');
+console.log('This is b.js');
+console.log('This is b.js');
