@@ -1,17 +1,20 @@
 const writeStats = (compilation) => {
-  const ms = [];
-  for (let module of compilation.getStats().toJson().modules) {
-    let reasons = [];
-    for (let reason of module.reasons) {
-      reasons.push(reason.moduleName);
+  const outputToDependencies = [];
+
+  for (let chunk of compilation.chunks) {
+    const deps = [];
+
+    for (let m of chunk._modules) {
+      deps.push(m.id);
     }
-    ms.push({
-      name: module.name,
-      reasons: reasons
+
+    outputToDependencies.push({
+      output: chunk.files[0],
+      dependencies: deps
     })
   }
 
-  const s = JSON.stringify(ms);
+  const s = JSON.stringify(outputToDependencies);
   compilation.assets['dependency-tree.json'] = {
     source() {
       return s;

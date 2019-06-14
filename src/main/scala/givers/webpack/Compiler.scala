@@ -9,7 +9,7 @@ import sbt.internal.util.ManagedLogger
 import scala.io.Source
 
 case class CompilationResult(success: Boolean, entries: Seq[CompilationEntry])
-case class CompilationEntry(inputFile: File, filesRead: Set[Path], filesWritten: Set[Path])
+case class CompilationEntry(inputFile: File, filesWritten: Set[Path])
 case class Input(name: String, path: Path)
 
 class Shell {
@@ -27,67 +27,35 @@ class ComputeDependencyTree {
     LOCAL_PATH_PREFIX_REGEX.replaceAllIn(s, "").replaceAllLiterally("/", sbt.Path.sep.toString)
   }
 
-  def apply(file: File): Map[String, Set[String]] = {
-    apply(scala.io.Source.fromFile(file).mkString)
+  private[this] def readAndClose(file: File): String = {
+    val s = scala.io.Source.fromFile(file)
+
+    try {
+      s.mkString
+    } finally {
+      s.close()
+    }
   }
 
+  def apply(file: File): Map[String, Set[String]] = {
+    apply(readAndClose(file))
+  }
+
+  // The result is: input file -> Set[output file]
   def apply(content: String): Map[String, Set[String]] = {
     val json = Json.parse(content)
 
-    val deps = json.as[JsArray].value
+    json.as[JsArray].value
       .flatMap { obj =>
-        // For some reason, webpack or vue-loader includes the string ` + 4 modules` in `name`.
-        val name = obj("name").as[String].split(" \\+ ").head
-        val relations = obj("reasons").as[Seq[JsValue]]
-          .flatMap {
-            case JsNull => None
-            // For some reason, webpack or vue-loader includes the string ` + 4 modules` in `moduleName`.
-            // See: https://github.com/webpack/webpack/issues/8507
-            case JsString(v) => Some(v.split(" \\+ ").head)
-            case _ => throw new IllegalArgumentException()
-          }
-          .map { reason =>
-            reason -> name
-          }
+        val output = obj("output").as[String]
 
-        relations ++ Seq(name -> name) // the file also depends on itself.
+        obj("dependencies").as[Seq[JsValue]].flatMap {
+          case JsString(s) => Some(s -> output)
+          case _ => None
+        }
       }
-      .groupBy { case (key, _) => key }
+      .groupBy(_._1)
       .mapValues(_.map(_._2).toSet)
-
-    flatten(deps)
-      // We only care about our directories.
-      // The path separator here is always `/`, even on windows.
-      .filter { case (key, _) => key.startsWith("./") }
-      .mapValues { vs =>
-        vs.filter { v =>
-          // There are some dependencies that we don't care about.
-          // An example: ./vue/component-a.vue?vue&type=style&index=0&id=f8aaa26e&scoped=true&lang=scss&
-          // Another example: /home/tanin/projects/sbt-vuefy/node_modules/vue-style-loader!/home/ta...
-          v.startsWith("./") && !v.contains("?")
-        }
-      }
-      .map { case (key, values) =>
-        sanitize(key) -> values.map(sanitize)
-      }
-  }
-
-  private[this] def flatten(deps: Map[String, Set[String]]): Map[String, Set[String]] = {
-    var changed = false
-    val newDeps = deps
-      .map { case (key, children) =>
-        val newChildren = children ++ children.flatMap { v => deps.getOrElse(v, Set.empty) }
-        if (newChildren.size != children.size) {
-          changed = true
-        }
-        key -> newChildren
-      }
-
-    if (changed) {
-      flatten(newDeps)
-    } else {
-      newDeps
-    }
   }
 }
 
@@ -197,28 +165,13 @@ class Compiler(
       success = success,
       entries = if (success) {
         val dependencyMap = computeDependencyTree(targetDir / "dependency-tree.json")
-        val validInputs = inputs.map(_.name).toSet
 
-        filteredEntries
-          .toSeq
-          .flatMap { case (output, is) =>
-            is.map { input => input -> output }
-          }
-          .groupBy { case (input, _) => input }
-          .map { case (_, items) =>
-              items.head._1 -> items.map(_._2)
-          }
-          .toSeq
-          .filter { case (input, _) => validInputs.contains(input.name) }
-          .sortBy(_._1.name)
+        dependencyMap
           .map { case (input, outputs) =>
-            val dependencies = dependencyMap
-              .getOrElse(input.name, Set.empty)
-              .map { relativePath =>
-                (baseDir / relativePath).toPath
-              }
-            CompilationEntry(input.path.toFile, dependencies, outputs.map(_.toPath).toSet)
+            CompilationEntry(baseDir.toPath.resolve(input).toFile.getCanonicalFile, outputs.map { output => targetDir.toPath.resolve(output) })
           }
+          .toSeq
+          .sortBy(_.inputFile)
       } else {
         Seq.empty
       }

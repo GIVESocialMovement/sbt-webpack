@@ -19,11 +19,6 @@ Assets / WebpackKeys.webpack / WebpackKeys.binary := {
 }
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"
 Assets / WebpackKeys.webpack / WebpackKeys.entries := Map(
-  "javascripts/a.js" -> Seq("app/assets/javascripts/a.js"),
-  "javascripts/compiled.js" -> Seq(
-    "app/assets/javascripts/b.js",
-    "node_modules/vue/dist/vue.runtime.js",
-    "node_modules/axios/dist/axios.js",
-    "node_modules/vue-i18n/dist/vue-i18n.js",
-  )
+  "javascripts/compiled.js" -> Seq("app/assets/javascripts/a.js"),
+  "javascripts/compiled2.js" -> Seq("app/assets/javascripts/b.js")
 )

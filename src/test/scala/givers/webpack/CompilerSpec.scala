@@ -109,8 +109,8 @@ object CompilerSpec extends BaseSpec {
         when(shell.execute(any(), any(), any())).thenReturn(0)
         when(computeDependencyTree.apply(any[File]())).thenReturn(
           Map(
-            inputs.head.name -> Set(inputs.head.name),
-            inputs(1).name -> Set(inputs.head.name, inputs(1).name)
+            inputs.head.name -> Set(targetDir.toPath.relativize(output.toPath).toString),
+            inputs(1).name -> Set(targetDir.toPath.relativize(output.toPath).toString)
           )
         )
 
@@ -119,11 +119,9 @@ object CompilerSpec extends BaseSpec {
         result.entries.size ==> 2
 
         result.entries.head.inputFile.getCanonicalPath ==> inputs.head.path.toFile.getCanonicalPath
-        result.entries.head.filesRead ==> Set(inputs.head.path)
         result.entries.head.filesWritten ==> Set(output.toPath)
 
         result.entries(1).inputFile.getCanonicalPath ==> inputs(1).path.toFile.getCanonicalPath
-        result.entries(1).filesRead ==> Set(inputs.head.path, inputs(1).path)
         result.entries(1).filesWritten ==> Set(output.toPath)
 
         verify(prepareWebpackConfig).apply(
@@ -179,79 +177,31 @@ object CompilerSpec extends BaseSpec {
       val b = make("b")
       val c = make("c")
       val d = make("d")
-      val nonVue = "non-vue"
 
-      "builds correctly with flatten" - {
+      "builds correctly" - {
         // Even on window, the path separator from webpack's command is still `/`.
+        // compilation.chunks give us flatten dependencies already.
         val jsonStr = JsArray(Seq(
           Json.obj(
-            "name" -> "./vue/a",
-            "reasons" -> Seq.empty[String]
+            "output" -> "vue/a",
+            "dependencies" -> Seq(
+              "vue/b",
+              "vue/c"
+            )
           ),
           Json.obj(
-            "name" -> "./vue/b",
-            "reasons" -> Seq("./vue/a + 4 modules")
+            "output" -> "vue/b",
+            "dependencies" -> Seq("vue/c")
           ),
           Json.obj(
-            "name" -> "./vue/c",
-            "reasons" -> Seq("./vue/b + 4 modules")
-          ),
-          Json.obj(
-            "name" -> "./vue/d",
-            "reasons" -> Seq("./vue/a + 4 modules")
+            "output" -> "vue/c",
+            "dependencies" -> Seq.empty[String]
           )
         )).toString
 
         compute(jsonStr) ==> Map(
-          a -> Set(a, b, c, d),
-          b -> Set(b, c),
-          c -> Set(c),
-          d -> Set(d)
-        )
-      }
-
-      "handles non ./vue correctly" - {
-        val jsonStr = JsArray(Seq(
-          Json.obj(
-            "name" -> "./vue/a",
-            "reasons" -> Seq.empty[String]
-          ),
-          Json.obj(
-            "name" -> nonVue,
-            "reasons" -> Seq("./vue/a + 4 modules")
-          ),
-          Json.obj(
-            "name" -> "./vue/c + 4 modules",
-            "reasons" -> Seq(nonVue)
-          )
-        )).toString
-
-        compute(jsonStr) ==> Map(
-          a -> Set(a, c),
-          c -> Set(c)
-        )
-      }
-
-      "handles cyclic dependencies" - {
-        val jsonStr = JsArray(Seq(
-          Json.obj(
-            "name" -> "./vue/a",
-            "reasons" -> Seq("./vue/c + 4 modules")
-          ),
-          Json.obj(
-            "name" -> "./vue/b",
-            "reasons" -> Seq("./vue/a + 4 modules")
-          ),
-          Json.obj(
-            "name" -> "./vue/c",
-            "reasons" -> Seq("./vue/b + 4 modules")
-          ),
-        )).toString()
-
-        compute(jsonStr) ==> Map(
-          a -> Set(a, b, c),
-          b -> Set(a, b, c),
-          c -> Set(a, b, c)
+          c -> Set(a, b),
+          b -> Set(a)
         )
       }
     }
