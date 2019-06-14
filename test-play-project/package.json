@@ -1,5 +1,8 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "jquery": "^3.4.0",
+    "moment": "^2.24.0"
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions",
@@ -8,11 +11,9 @@
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
-    "axios": "^0.18.0",
     "babel-loader": "^8.0.4",
     "expose-loader": "^0.7.5",
-    "vue": "^2.5.21",
-    "vue-i18n": "^8.6.0",
+    "moment-locales-webpack-plugin": "^1.0.7",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2"
   }

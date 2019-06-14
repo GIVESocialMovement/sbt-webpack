@@ -1,5 +1,8 @@
 package givers.webpack
 
+import java.io.PrintWriter
+import java.nio.file.Paths
+
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental._
 import sbt.Keys._
@@ -143,9 +146,16 @@ object SbtWebpack extends AutoPlugin {
       )
 
       // Collect OpResults
-      val opResults: Map[File, OpResult] = result.entries
+      val (trackedEntries, _) = result.entries.partition { entry =>
+        modifiedSources.exists { f => f.getCanonicalPath == entry.inputFile.getCanonicalPath }
+      }
+      val opResults: Map[File, OpResult] = trackedEntries
+        .filter { entry =>
+          // Webpack might generate extra files from extra input files. We can't track those input files.
+          modifiedSources.exists { f => f.getCanonicalPath == entry.inputFile.getCanonicalPath }
+        }
         .map { entry =>
-          entry.inputFile -> OpSuccess(entry.filesRead.map(_.toFile), entry.filesWritten.map(_.toFile))
+          entry.inputFile -> OpSuccess(Set(entry.inputFile), entry.filesWritten.map(_.toFile))
         }
         .toMap
 

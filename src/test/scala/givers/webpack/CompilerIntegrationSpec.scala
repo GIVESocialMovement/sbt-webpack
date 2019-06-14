@@ -44,22 +44,31 @@ object CompilerIntegrationSpec extends BaseSpec {
         val result = compiler.compile(entries, inputs.map(_.toPath))
 
         result.success ==> true
-        result.entries.size ==> 2
+        result.entries.size ==> 4
 
-        result.entries.head.inputFile ==> aJs
+        result.entries.head.inputFile.getCanonicalPath ==> aJs.getCanonicalPath
         result.entries.head.filesWritten.size ==> 1
         Files.exists(result.entries.head.filesWritten.head) ==> true
         result.entries.head.filesWritten.head ==> output1.toPath
-        result.entries.head.filesRead ==> Set(aJs.toPath, cJs.toPath)
         // If CSS dependency is tracked properly, the below should have been true.
         // See more: https://github.com/GIVESocialMovement/sbt-vuefy/issues/20
         //        result.entries.head.filesRead ==> inputs.map(_.toPath).toSet ++ Set(baseInputDir / "dependencies" / "style.scss")
 
-        result.entries(1).inputFile ==> bJs
+        result.entries(1).inputFile.getCanonicalPath ==> bJs.getCanonicalPath
         result.entries(1).filesWritten.size ==> 2
         result.entries(1).filesWritten.forall { f => Files.exists(f) } ==> true
         result.entries(1).filesWritten ==> Set(output1.toPath, output2.toPath)
-        result.entries(1).filesRead ==> Set(bJs.toPath)
+
+        result.entries(2).inputFile.getCanonicalPath ==> cJs.getCanonicalPath
+        result.entries(2).filesWritten.size ==> 1
+        result.entries(2).filesWritten.forall { f => Files.exists(f) } ==> true
+        result.entries(2).filesWritten ==> Set(output1.toPath)
+
+        // The below is the code-splitting defined in assets/webpack.config.js
+        result.entries(3).inputFile.getCanonicalPath ==> (baseInputDir / "vendor" / "lib.js").getCanonicalPath
+        result.entries(3).filesWritten.size ==> 1
+        result.entries(3).filesWritten.forall { f => Files.exists(f) } ==> true
+        result.entries(3).filesWritten ==> Set((targetDir / "dist" / "vendor.js").toPath)
       }
     }
   }
