@@ -12,10 +12,12 @@ const writeStats = (compilation) => {
       }
     }
 
-    outputToDependencies.push({
-      output: chunk.files[0],
-      dependencies: deps
-    })
+    for (let file of chunk.files) {
+      outputToDependencies.push({
+        output: file,
+        dependencies: deps
+      })
+    }
   }
 
   const s = JSON.stringify(outputToDependencies);
