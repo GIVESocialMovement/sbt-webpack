@@ -54,7 +54,7 @@ module.exports = {
       }
     },
   },
-  devtool: ''
+  devtool: 'source-map'
 };
 
 if (process.env.NODE_ENV === 'production') {
