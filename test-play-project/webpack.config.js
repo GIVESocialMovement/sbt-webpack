@@ -1,8 +1,22 @@
 "use strict";
 
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+
 module.exports = {
   module: {
     rules: [
+      {
+        test: /\.css$/i,
+        use: ['css-loader'],
+      },
+      {
+        test: /\.scss$/i,
+        use: ['css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
@@ -36,6 +50,9 @@ module.exports = {
       }
     ],
   },
+  plugins: [
+    new VueLoaderPlugin()
+  ],
   optimization: {
     splitChunks: {
       cacheGroups: {

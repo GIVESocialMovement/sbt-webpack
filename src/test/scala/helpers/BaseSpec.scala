@@ -10,6 +10,8 @@ import scala.reflect.ClassTag
 
 abstract class BaseSpec extends TestSuite {
 
+  def use[T](t: T)(fn: T => Unit): Unit = fn(t)
+
   def mock[T](implicit m: ClassTag[T]): T = org.mockito.Mockito.mock(m.runtimeClass.asInstanceOf[Class[T]])
 
   def any[T]() = org.mockito.ArgumentMatchers.any[T]()

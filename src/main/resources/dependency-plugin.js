@@ -1,26 +1,28 @@
 const writeStats = (compilation) => {
-  const outputToDependencies = [];
+  const edges = [];
 
   for (let chunk of compilation.chunks) {
-    const deps = [];
-
     for (let m of chunk._modules) {
-      if (m.buildInfo && m.buildInfo.fileDependencies) {
-        for (let dep of m.buildInfo.fileDependencies) {
-          deps.push(dep);
+      if (!m.buildInfo || !m.buildInfo.fileDependencies) { continue; }
+
+      for (let file of m.buildInfo.fileDependencies) {
+        for (let outputFile of chunk.files) {
+          edges.push({ main: outputFile, require: file });
+        }
+
+        for (let reason of m.reasons) {
+          if (!reason.module || !reason.module.buildInfo || !reason.module.buildInfo.fileDependencies) { continue; }
+
+          for (let reasonFile of reason.module.buildInfo.fileDependencies) {
+            edges.push({ main: reasonFile, require: file });
+          }
         }
       }
     }
-
-    for (let file of chunk.files) {
-      outputToDependencies.push({
-        output: file,
-        dependencies: deps
-      })
-    }
   }
 
-  const s = JSON.stringify(outputToDependencies);
+  const s = JSON.stringify(edges);
+
   compilation.assets['dependency-tree.json'] = {
     source() {
       return s;
@@ -35,8 +37,9 @@ class DependencyPlugin {
   apply(compiler) {
     compiler.hooks.emit.tap("stat-emit", (compilation) => {
       writeStats(compilation);
-  });
+    });
   }
 }
 
 module.exports = DependencyPlugin;
+

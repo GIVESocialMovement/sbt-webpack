@@ -119,10 +119,12 @@ object CompilerSpec extends BaseSpec {
         result.entries.size ==> 2
 
         result.entries.head.inputFile.getCanonicalPath ==> inputs.head.path.toFile.getCanonicalPath
-        result.entries.head.filesWritten ==> Set(output.toPath)
+        result.entries.head.filesRead ==> Set(inputs.head.path.toFile.getCanonicalFile)
+        result.entries.head.filesWritten ==> Set(output.getCanonicalFile)
 
         result.entries(1).inputFile.getCanonicalPath ==> inputs(1).path.toFile.getCanonicalPath
-        result.entries(1).filesWritten ==> Set(output.toPath)
+        result.entries(1).filesRead ==> Set(inputs(1).path.toFile.getCanonicalFile)
+        result.entries(1).filesWritten ==> Set(output.getCanonicalFile)
 
         verify(prepareWebpackConfig).apply(
           originalWebpackConfig = originalConfigFile,
@@ -177,21 +179,9 @@ object CompilerSpec extends BaseSpec {
         // Even on window, the path separator from webpack's command is still `/`.
         // compilation.chunks give us flatten dependencies already.
         val jsonStr = JsArray(Seq(
-          Json.obj(
-            "output" -> "vue/a",
-            "dependencies" -> Seq(
-              "/full-path/vue/b",
-              "/full-path/vue/c"
-            )
-          ),
-          Json.obj(
-            "output" -> "vue/b",
-            "dependencies" -> Seq("/full-path/vue/c")
-          ),
-          Json.obj(
-            "output" -> "vue/c",
-            "dependencies" -> Seq.empty[String]
-          )
+          Json.obj("main" -> "vue/a", "require" -> "/full-path/vue/b"),
+          Json.obj("main" -> "vue/a", "require" -> "/full-path/vue/c"),
+          Json.obj("main" -> "vue/b", "require" -> "/full-path/vue/c"),
         )).toString
 
         compute(jsonStr) ==> Map(

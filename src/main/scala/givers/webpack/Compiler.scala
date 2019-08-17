@@ -9,7 +9,7 @@ import sbt.internal.util.ManagedLogger
 import scala.io.Source
 
 case class CompilationResult(success: Boolean, entries: Seq[CompilationEntry])
-case class CompilationEntry(inputFile: File, filesWritten: Set[Path])
+case class CompilationEntry(inputFile: File, filesRead: Set[File], filesWritten: Set[File])
 case class Input(name: String, path: Path)
 
 class Shell {
@@ -47,11 +47,21 @@ class ComputeDependencyTree {
 
     json.as[JsArray].value
       .flatMap { obj =>
-        val output = obj("output").as[String]
-
-        obj("dependencies").as[Seq[JsValue]].flatMap {
-          case JsString(s) => Some(s -> output)
+        val outputOpt = obj("main").as[JsValue] match {
+          case JsString(s) => Some(s)
           case _ => None
+        }
+
+        val inputOpt = obj("require").as[JsValue] match {
+          case JsString(s) => Some(s)
+          case _ => None
+        }
+
+        for {
+          input <- inputOpt
+          output <- outputOpt
+        } yield {
+          input -> output
         }
       }
       .groupBy(_._1)
@@ -140,6 +150,14 @@ class Compiler(
   computeDependencyTree: ComputeDependencyTree = new ComputeDependencyTree
 ) {
 
+  def getFile(path: String): File = {
+    if (path.startsWith("/")) {
+      new File(path)
+    } else {
+      targetDir.toPath.resolve(path).toFile.getCanonicalFile
+    }
+  }
+
   def compile(entryPoints: Map[String, Seq[String]], inputFiles: Seq[Path]): CompilationResult = {
     import sbt._
 
@@ -158,24 +176,50 @@ class Compiler(
 
     logger.info(cmd)
     val exitCode = shell.execute(cmd, baseDir, "NODE_PATH" -> nodeModules.getCanonicalPath)
-    logger.info(s"[sbt-webpack] exited with $exitCode")
+    logger.info(s"[sbt-webpack] Exited with $exitCode")
     val success = exitCode == 0
 
     CompilationResult(
       success = success,
       entries = if (success) {
         val dependencyMap = computeDependencyTree(targetDir / "dependency-tree.json")
-        logger.debug(s"[sbt-webpack] dependency map: $dependencyMap")
+        logger.debug(s"[sbt-webpack] Dependency map: $dependencyMap")
+
+        val filesRead = dependencyMap
+          .toList
+          .flatMap { case (input, outputs) =>
+              Seq(input -> input) ++ outputs.map { output => output -> input }
+          }
+          .groupBy(_._1)
+          .mapValues(_.map(_._2).toSet)
 
         dependencyMap
+          .toList
           .map { case (input, outputs) =>
-            CompilationEntry(new File(input), outputs.map { output => targetDir.toPath.resolve(output) })
+            CompilationEntry(
+              inputFile = getFile(input),
+              filesRead = getTransitivity(filesRead.getOrElse(input, Set.empty), filesRead).map(getFile),
+              filesWritten = outputs
+                .map { output => getFile(output) }
+                .filter { outputFile => outputFile.getCanonicalPath.startsWith(targetDir.getCanonicalPath) }
+            )
           }
-          .toSeq
-          .sortBy(_.inputFile)
       } else {
         Seq.empty
       }
     )
+  }
+
+  def getTransitivity(filesRead: Set[String], filesReadMap: Map[String, Set[String]]): Set[String] = {
+    val newFileReads = filesRead
+      .flatMap { read =>
+        Set(read) ++ filesReadMap.getOrElse(read, Set.empty)
+      }
+
+    if (newFileReads.size != filesRead.size) {
+      getTransitivity(newFileReads, filesReadMap)
+    } else {
+      newFileReads
+    }
   }
 }

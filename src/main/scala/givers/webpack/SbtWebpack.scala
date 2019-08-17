@@ -24,6 +24,7 @@ object SbtWebpack extends AutoPlugin {
       val configFile = SettingKey[File]("webpackConfigFile", "The location of webpack.config.js")
       val entries = SettingKey[Map[String, Seq[String]]]("webpackEntries", "The entry points as defined here: https://webpack.js.org/concepts/entry-points")
       val nodeModulesPath = TaskKey[File]("webpackNodeModules", "The location of the node_modules.")
+      val sourceDirs = SettingKey[Seq[File]]("webpackSourceDirs", "The directories that contains source files.")
     }
   }
 
@@ -32,6 +33,7 @@ object SbtWebpack extends AutoPlugin {
   import autoImport.WebpackKeys._
 
   override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(Seq(
+    sourceDirs in webpack := Seq(baseDirectory.value / "app", baseDirectory.value / "node_modules"),
     excludeFilter in webpack := HiddenFileFilter,
     includeFilter in webpack := "*.js",
     nodeModulesPath := new File("./node_modules"),
@@ -65,12 +67,17 @@ object SbtWebpack extends AutoPlugin {
     val targetDir = (resourceManaged in webpack in Assets).value
     val logger = (streams in Assets).value.log
     val nodeModulesLocation = (nodeModulesPath in webpack).value
+    val webpackSourceDirs = (sourceDirs in webpack).value
     val webpackReporter = (reporter in Assets).value
     val webpackBinaryLocation = (binary in webpack).value
     val webpackConfigFileLocation = (configFile in webpack).value
     val webpackEntryPoints = (entries in webpack).value
 
-    val sources = webpackEntryPoints.values.flatMap { vs => vs.map(baseDir / _) }.toSeq
+    val sources = webpackSourceDirs
+      .flatMap { sourceDir =>
+        (sourceDir ** ((includeFilter in webpack).value -- (excludeFilter in webpack).value)).get
+      }
+      .filter(_.isFile)
 
     val globalHash = new String(
       Hash(Seq(
@@ -93,13 +100,11 @@ object SbtWebpack extends AutoPlugin {
       val startInstant = System.currentTimeMillis
 
       if (modifiedSources.nonEmpty) {
-        logger.info(s"[sbt-webpack] Compile on ${modifiedSources.size} changed files")
-        modifiedSources
-          .map(_.toString)
-          .sorted
-          .foreach { s =>
-            logger.info(s"[sbt-webpack] - $s")
-          }
+        logger.info(
+          s"""
+             |[sbt-webpack] Detected ${modifiedSources.size} changed files in:
+             |${webpackSourceDirs.map { d => s"- ${d.getCanonicalPath}" }.mkString("\n")}
+           """.stripMargin.trim)
       } else {
         logger.info(s"[sbt-webpack] No changes to compile")
       }
@@ -145,36 +150,37 @@ object SbtWebpack extends AutoPlugin {
         } else { Seq.empty }
       )
 
-      // Collect OpResults
-      val (trackedEntries, _) = result.entries.partition { entry =>
-        modifiedSources.exists { f => f.getCanonicalPath == entry.inputFile.getCanonicalPath }
-      }
-      val opResults: Map[File, OpResult] = trackedEntries
+      val opResults = result.entries
         .filter { entry =>
           // Webpack might generate extra files from extra input files. We can't track those input files.
           modifiedSources.exists { f => f.getCanonicalPath == entry.inputFile.getCanonicalPath }
         }
         .map { entry =>
-          entry.inputFile -> OpSuccess(Set(entry.inputFile), entry.filesWritten.map(_.toFile))
+          entry.inputFile -> OpSuccess(entry.filesRead, entry.filesWritten)
         }
         .toMap
 
-      // Collect the created files
-      val createdFiles = result.entries.flatMap(_.filesWritten.map(_.toFile)).distinct
+      // The below is important for excluding unrelated files in the next recompilation.
+      val resultInputFilePaths = result.entries.map(_.inputFile.getCanonicalPath)
+      val unrelatedOpResults = modifiedSources
+        .filterNot { file => resultInputFilePaths.contains(file.getCanonicalPath) }
+        .map { file =>
+          file -> OpSuccess(Set(file), Set.empty)
+        }
+        .toMap
 
+      val createdFiles = result.entries.flatMap(_.filesWritten).distinct
       val endInstant = System.currentTimeMillis
 
-      if (createdFiles.nonEmpty) {
-        logger.info(s"[sbt-webpack] finished compilation in ${endInstant - startInstant} ms and generated ${createdFiles.size} JS files")
-        createdFiles
-          .map(_.toString)
-          .sorted
-          .foreach { s =>
-            logger.info(s"[sbt-webpack] - $s")
-          }
-      }
+      logger.info(s"[sbt-webpack] Finished compilation in ${endInstant - startInstant} ms and generated ${createdFiles.size} JS files")
+      createdFiles
+        .map(_.toString)
+        .sorted
+        .foreach { s =>
+          logger.info(s"[sbt-webpack] - $s")
+        }
 
-      (opResults, createdFiles)
+      (opResults ++ unrelatedOpResults, createdFiles)
 
     }(fileHasherIncludingOptions)
 
