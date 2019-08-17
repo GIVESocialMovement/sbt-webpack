@@ -18,8 +18,10 @@ Assets / WebpackKeys.webpack / WebpackKeys.binary := {
   }
 }
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"
+Assets / WebpackKeys.webpack / includeFilter := "*.js" || "*.vue"
 Assets / WebpackKeys.webpack / WebpackKeys.entries := Map(
   "javascripts/compiled-a.js" -> Seq("app/assets/javascripts/a.js"),
+  "javascripts/test.js" -> Seq("app/assets/javascripts/test.vue"),
   "javascripts/compiled-b.js" -> Seq(
     "app/assets/javascripts/b.js",
     "node_modules/vue/dist/vue.runtime.js",

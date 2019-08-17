@@ -1,1 +1,1 @@
-console.log("Hello from c");
+console.log("Hello from C");
