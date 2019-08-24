@@ -49,7 +49,7 @@ object SbtWebpack extends AutoPlugin {
       val targetDirAbsolutePath = targetDir.getAbsolutePath
 
       { files: Seq[File] => files.find(_.getAbsolutePath.startsWith(targetDirAbsolutePath)) }
-    },
+    }
   ))
 
   private[this] def readAndClose(file: File): String = {

@@ -7,6 +7,7 @@ name := "sbt-webpack"
 version in ThisBuild := "0.9.0"
 
 scalaVersion := "2.12.8"
+crossSbtVersions := Vector("0.13.18", "1.2.8")
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.6.13",
