@@ -4,12 +4,12 @@ enablePlugins(SbtWebBase)
 
 organization := "givers.webpack"
 name := "sbt-webpack"
-version in ThisBuild := "0.9.0"
+version in ThisBuild := "0.10.0"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.11"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-json" % "2.6.13",
+  "com.typesafe.play" %% "play-json" % "2.8.1",
   "org.mockito" % "mockito-core" % "2.18.3" % Test,
   "com.lihaoyi" %% "utest" % "0.6.3" % Test
 )

@@ -4,4 +4,4 @@ lazy val sbtWebpack = RootProject(file("./..").getCanonicalFile.toURI)
 
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.21")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2")
