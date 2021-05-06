@@ -4,7 +4,6 @@ sbt-webpack
 [![CircleCI](https://circleci.com/gh/GIVESocialMovement/sbt-webpack/tree/master.svg?style=shield)](https://circleci.com/gh/GIVESocialMovement/sbt-webpack/tree/master)
 [![codecov](https://codecov.io/gh/GIVESocialMovement/sbt-webpack/branch/master/graph/badge.svg)](https://codecov.io/gh/GIVESocialMovement/sbt-webpack)
 [![Gitter chat](https://badges.gitter.im/GIVE-asia/gitter.png)](https://gitter.im/GIVE-asia/Lobby)
-[ ![Download](https://api.bintray.com/packages/givers/maven/sbt-webpack/images/download.svg) ](https://bintray.com/givers/maven/sbt-webpack/_latestVersion)
 
 `sbt-webpack` integrates [Webpack 4](https://webpack.js.org) with Playframework assets' incremental compilation. 
 This plugin also tracks JS dependencies correctly (e.g. using `require` or `import` in a JS file).
@@ -42,12 +41,10 @@ Usage
 Add the below lines to `project/plugins.sbt`:
 
 ```
-resolvers += Resolver.bintrayRepo("givers", "maven")
-
-addSbtPlugin("givers.webpack" % "sbt-webpack" % "LATEST_VERSION")
+addSbtPlugin("io.github.givesocialmovement" % "sbt-webpack" % "0.10.0")
 ```
 
-The artifacts are hosted here: https://bintray.com/givers/maven/sbt-webpack
+The artifacts are hosted here: https://search.maven.org/artifact/io.github.givesocialmovement/sbt-webpack/0.10.0/jar
 
 
 ### 2. Create `webpack.config.js`.
