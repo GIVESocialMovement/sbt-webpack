@@ -31,21 +31,27 @@ module.exports = {
         test: /vue\.runtime\.js/,
         use: {
           loader: 'expose-loader',
-          options: 'Vue'
+          options: {
+            exposes: 'Vue'
+          }
         }
       },
       {
         test: /axios\.js/,
         use: {
           loader: 'expose-loader',
-          options: 'axios'
+          options: {
+            exposes: 'axios'
+          }
         }
       },
       {
         test: /vue-i18n\.js/,
         use: {
           loader: 'expose-loader',
-          options: 'VueI18n'
+          options: {
+            exposes: 'VueI18n'
+          }
         }
       }
     ],

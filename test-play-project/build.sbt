@@ -1,20 +1,23 @@
 name := """test-play-project"""
-organization := "givers.webpack"
+organization := "io.github.givesocialmovement"
 
-version := "1.0-SNAPSHOT"
+version := "1.1-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb, SbtWebpack)
 
-scalaVersion := "2.12.11"
+scalaVersion := "2.13.8"
 
-libraryDependencies ++= Seq(guice)
+libraryDependencies ++= Seq(
+  guice,
+  "com.google.inject" % "guice" % "5.1.0"
+)
 
 Assets / WebpackKeys.webpack / WebpackKeys.binary := {
   // Detect windows
   if (sys.props.getOrElse("os.name", "").toLowerCase.contains("win")) {
     new File(".") / "node_modules" / ".bin" / "webpack.cmd"
   } else {
-    new File(".") / "node_modules" / ".bin" / "webpack"
+    new File(".") / "node_modules" / "webpack" / "bin" / "webpack.js"
   }
 }
 Assets / WebpackKeys.webpack / WebpackKeys.configFile := new File(".") / "webpack.config.js"

@@ -4,6 +4,7 @@ target
 node_modules
 .g8
 .idea
+.bsp
 .idea_modules
 .classpath
 .project

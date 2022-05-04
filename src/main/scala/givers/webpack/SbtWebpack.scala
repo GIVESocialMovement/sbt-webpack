@@ -33,19 +33,19 @@ object SbtWebpack extends AutoPlugin {
   import autoImport.WebpackKeys._
 
   override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(Seq(
-    sourceDirs in webpack := Seq(baseDirectory.value / "app", baseDirectory.value / "node_modules"),
-    excludeFilter in webpack := HiddenFileFilter,
-    includeFilter in webpack := "*.js",
+    webpack / sourceDirs := Seq(baseDirectory.value / "app", baseDirectory.value / "node_modules"),
+    webpack / excludeFilter := HiddenFileFilter,
+    webpack / includeFilter := "*.js",
     nodeModulesPath := new File("./node_modules"),
-    resourceManaged in webpack := webTarget.value / "webpack" / "main",
-    managedResourceDirectories in Assets+= (resourceManaged in webpack in Assets).value,
-    resourceGenerators in Assets += webpack in Assets,
-    webpack in Assets := task.dependsOn(WebKeys.webModules in Assets).value,
+    webpack / resourceManaged := webTarget.value / "webpack" / "main",
+    Assets / managedResourceDirectories += (Assets / webpack / resourceManaged).value,
+    Assets / resourceGenerators += Assets / webpack,
+    Assets / webpack := task.dependsOn(Assets / WebKeys.webModules).value,
     // Because sbt-webpack might compile JS and output into the same file.
     // Therefore, we need to deduplicate the files by choosing the one in the target directory.
     // Otherwise, the "duplicate mappings" error would occur.
-    deduplicators in Assets += {
-      val targetDir = (resourceManaged in webpack in Assets).value
+    Assets / deduplicators += {
+      val targetDir = (Assets / webpack / resourceManaged).value
       val targetDirAbsolutePath = targetDir.getAbsolutePath
 
       { files: Seq[File] => files.find(_.getAbsolutePath.startsWith(targetDirAbsolutePath)) }
@@ -63,19 +63,19 @@ object SbtWebpack extends AutoPlugin {
   }
 
   lazy val task = Def.task {
-    val baseDir = (baseDirectory in Assets).value
-    val targetDir = (resourceManaged in webpack in Assets).value
-    val logger = (streams in Assets).value.log
-    val nodeModulesLocation = (nodeModulesPath in webpack).value
-    val webpackSourceDirs = (sourceDirs in webpack).value
-    val webpackReporter = (reporter in Assets).value
-    val webpackBinaryLocation = (binary in webpack).value
-    val webpackConfigFileLocation = (configFile in webpack).value
-    val webpackEntryPoints = (entries in webpack).value
+    val baseDir = (Assets / baseDirectory).value
+    val targetDir = (Assets / webpack / resourceManaged).value
+    val logger = (Assets / streams).value.log
+    val nodeModulesLocation = (webpack / nodeModulesPath).value
+    val webpackSourceDirs = (webpack / sourceDirs).value
+    val webpackReporter = (Assets / reporter).value
+    val webpackBinaryLocation = (webpack / binary).value
+    val webpackConfigFileLocation = (webpack / configFile).value
+    val webpackEntryPoints = (webpack / entries).value
 
     val sources = webpackSourceDirs
       .flatMap { sourceDir =>
-        (sourceDir ** ((includeFilter in webpack).value -- (excludeFilter in webpack).value)).get
+        (sourceDir ** ((webpack / includeFilter).value -- (webpack / excludeFilter).value)).get
       }
       .filter(_.isFile)
 
@@ -96,7 +96,7 @@ object SbtWebpack extends AutoPlugin {
       ).mkString("--"))
     }
 
-    val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) { modifiedSources =>
+    val results = incremental.syncIncremental((Assets / streams).value.cacheDirectory / "run", sources) { modifiedSources =>
       val startInstant = System.currentTimeMillis
 
       if (modifiedSources.nonEmpty) {

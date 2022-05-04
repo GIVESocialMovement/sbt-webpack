@@ -1,25 +1,45 @@
+const fs = require('fs');
+
+/**
+ * scans file system snapshots recursively
+ * In webpack 5 it's a replacement of module.buildInfo.fileDependencies that was available in webpack 4
+ * but in webpack 5 it's always empty. See webpack/lib/NormalModule.js link that contains "compilation.fileSystemInfo.createSnapshot"
+ */
+const scanSnapshotFiles = (snapshot) => {
+  let files = Array
+    .from(snapshot.getFileIterable())
+    .filter(path => fs.lstatSync(path).isFile() && !path.includes("package.json")) || [];
+
+  if(snapshot.children) {
+    snapshot.children.forEach(child => {
+      files = files.concat(scanSnapshotFiles(child));
+    });
+  }
+
+  return files;
+};
+
 const writeStats = (compilation) => {
   const edges = [];
 
-  for (let chunk of compilation.chunks) {
-    for (let m of chunk._modules) {
-      if (!m.buildInfo || !m.buildInfo.fileDependencies) { continue; }
-
-      for (let file of m.buildInfo.fileDependencies) {
-        for (let outputFile of chunk.files) {
+  compilation.chunks.forEach((chunk) => {
+    chunk.getModules().filter(module => module.buildInfo && module.buildInfo.snapshot).forEach((module) => {
+      scanSnapshotFiles(module.buildInfo.snapshot).forEach(file => {
+        chunk.files.forEach(outputFile => {
           edges.push({ main: outputFile, require: file });
-        }
+        });
 
-        for (let reason of m.reasons) {
-          if (!reason.module || !reason.module.buildInfo || !reason.module.buildInfo.fileDependencies) { continue; }
-
-          for (let reasonFile of reason.module.buildInfo.fileDependencies) {
-            edges.push({ main: reasonFile, require: file });
-          }
-        }
-      }
-    }
-  }
+        /**
+         * auxiliaryFiles usually contains .map files.
+         * In webpack 5 we used module.reasons but in webpack 5 it's not available
+         * See https://webpack.js.org/blog/2020-10-10-webpack-5-release/#other-minor-changes
+         */
+        chunk.auxiliaryFiles.forEach(reasonFile => {
+          edges.push({ main: reasonFile, require: file });
+        });
+      })
+    });
+  });
 
   const s = JSON.stringify(edges);
 
@@ -42,4 +62,3 @@ class DependencyPlugin {
 }
 
 module.exports = DependencyPlugin;
-
