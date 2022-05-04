@@ -2,11 +2,13 @@ lazy val `sbt-webpack` = project in file(".")
 
 enablePlugins(SbtWebBase)
 
-organization := "givers.webpack"
+organization := "io.github.givesocialmovement"
 name := "sbt-webpack"
-version in ThisBuild := "0.10.0"
+ThisBuild / version := "0.11.1"
 
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.15"
+
+ThisBuild / versionScheme := Some("early-semver")
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.8.1",
@@ -22,7 +24,7 @@ bintrayOrganization := Some("givers")
 
 bintrayRepository := "maven"
 
-publishArtifact in Test := false
+Test / publishArtifact := false
 
 pomIncludeRepository := { _ => false }
 
@@ -33,5 +35,9 @@ scmInfo := Some(ScmInfo(
   connection = "scm:git:git@github.com:GIVESocialMovement/sbt-webpack.git",
   devConnection = Some("scm:git:git@github.com:GIVESocialMovement/sbt-webpack.git")
 ))
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+
+publishTo := sonatypePublishToBundle.value
 
 addSbtJsEngine("1.2.3")

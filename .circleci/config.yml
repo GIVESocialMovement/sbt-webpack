@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk-node-browsers
+      - image: circleci/openjdk:17.0.1-jdk-buster-node-browsers-legacy
 
     working_directory: ~/repo
 

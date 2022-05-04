@@ -19,7 +19,7 @@ object CompilerIntegrationSpec extends BaseSpec {
           binary = if (sys.props.getOrElse("os.name", "").toLowerCase.contains("win")) {
             new File("node_modules") / ".bin" / "webpack.cmd" // Detect Windows
           } else {
-            new File("node_modules") / ".bin" / "webpack"
+            new File("node_modules") / "webpack" / "bin" / "webpack.js"
           },
           configFile = new File("src") / "test" / "scala" / "givers" / "webpack" / "assets" / "webpack.config.js",
           baseDir = baseDir,
@@ -45,7 +45,7 @@ object CompilerIntegrationSpec extends BaseSpec {
         val result = compiler.compile(entries, inputs.map(_.toPath))
 
         result.success ==> true
-        result.entries.size ==> 8
+        result.entries.size ==> 9
 
         val iterator = result.entries.sortBy(_.inputFile.getCanonicalPath).iterator
 
@@ -54,6 +54,14 @@ object CompilerIntegrationSpec extends BaseSpec {
         // This means, if css-loader is updated, compiled.js will be re-compiled, which is amazing!
         use(iterator.next()) { entry =>
           entry.inputFile.getCanonicalPath ==> (new File(".") / "node_modules" / "css-loader" / "dist" / "runtime" / "api.js").getCanonicalPath
+          entry.filesWritten ==> Set(
+            output1.getCanonicalFile,
+            (output1.getParentFile / s"${output1.name}.map").getCanonicalFile
+          )
+        }
+
+        use(iterator.next()) { entry =>
+          entry.inputFile.getCanonicalPath ==> (new File(".") / "node_modules" / "css-loader" / "dist" / "runtime" / "sourceMaps.js").getCanonicalPath
           entry.filesWritten ==> Set(
             output1.getCanonicalFile,
             (output1.getParentFile / s"${output1.name}.map").getCanonicalFile
