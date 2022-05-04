@@ -1,3 +1,5 @@
+import sbt.url
+
 lazy val `sbt-webpack` = project in file(".")
 
 enablePlugins(SbtWebBase)
@@ -9,6 +11,8 @@ ThisBuild / version := "0.11.1"
 scalaVersion := "2.12.15"
 
 ThisBuild / versionScheme := Some("early-semver")
+
+homepage := Some(url("https://github.com/GIVESocialMovement/sbt-webpack"))
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.8.1",
@@ -35,6 +39,10 @@ scmInfo := Some(ScmInfo(
   connection = "scm:git:git@github.com:GIVESocialMovement/sbt-webpack.git",
   devConnection = Some("scm:git:git@github.com:GIVESocialMovement/sbt-webpack.git")
 ))
+
+developers := List(
+  Developer(id="tanin", name="tanin", email="developers@giveasia.org", url=url("https://github.com/tanin47"))
+)
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
